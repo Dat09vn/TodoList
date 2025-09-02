@@ -176,7 +176,7 @@ func toggleTodo(reader *bufio.Reader) {
 		fmt.Println("Failed to toggle:", res.Status)
 	}
 
-	decodeDataRespond(resp)
+	decodeDataRespond(res)
 }
 
 func updateTitle(reader *bufio.Reader) {
@@ -228,7 +228,7 @@ func updateTitle(reader *bufio.Reader) {
 		fmt.Println("Failed to update:", res.Status)
 	}
 
-	decodeDataRespond(resp)
+	decodeDataRespond(res)
 }
 
 func deleteTodo(reader *bufio.Reader) {
