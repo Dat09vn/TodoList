@@ -1,8 +1,10 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -120,10 +122,24 @@ func updateTodo(w http.ResponseWriter, r *http.Request) {
 
 func deleteTodo(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
-	_, err := db.Exec("DELETE FROM todos WHERE id=$1", id)
+	result, err := db.Exec("DELETE FROM todos WHERE id=$1", id)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+	printRowsAffected("DELETE", result)
+}
+
+func printRowsAffected(methodAPI string, result sql.Result) {
+	rows, err := result.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if rows > 1 {
+		fmt.Printf("%s %d rows affected\n", methodAPI, rows)
+	} else {
+		fmt.Printf("%s %d row affected\n", methodAPI, rows)
+	}
 }
