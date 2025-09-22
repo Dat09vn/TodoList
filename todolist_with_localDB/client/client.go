@@ -174,12 +174,6 @@ func updateStatusTodo(reader *bufio.Reader) {
 		return
 	}
 
-	// var todo Todo
-	// if err := json.NewDecoder(resp.Body).Decode(&todo); err != nil {
-	// 	fmt.Println("Error decoding:", err)
-	// 	return
-	// }
-
 	// Move status
 	body, _ := json.Marshal(map[string]any{"completed": moveStatus(reader)})
 
@@ -221,12 +215,6 @@ func updateTitle(reader *bufio.Reader) {
 		fmt.Println("Todo not found")
 		return
 	}
-
-	// var todo Todo
-	// if err := json.NewDecoder(resp.Body).Decode(&todo); err != nil {
-	// 	fmt.Println("Error decoding:", err)
-	// 	return
-	// }
 
 	// Update title
 	fmt.Print("Enter title to update: ")
