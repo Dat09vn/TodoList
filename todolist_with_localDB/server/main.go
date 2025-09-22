@@ -86,7 +86,7 @@ func updateTodo(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
 		Title     *string `json:"title"`
-		Completed *bool   `json:"completed"`
+		Completed *string `json:"completed"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), 400)

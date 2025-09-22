@@ -15,7 +15,7 @@ import (
 type Todo struct {
 	ID        int       `json:"id"`
 	Title     string    `json:"title"`
-	Completed bool      `json:"completed"`
+	Completed string    `json:"completed"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -30,7 +30,7 @@ func main() {
 		fmt.Println("1. List Todos")
 		fmt.Println("2. Get one Todo")
 		fmt.Println("3. Add Todo")
-		fmt.Println("4. Toggle Todo")
+		fmt.Println("4. Update status Todo")
 		fmt.Println("5. Update title")
 		fmt.Println("6. Delete Todo")
 		fmt.Println("7. Exit")
@@ -47,7 +47,7 @@ func main() {
 		case "3":
 			addTodo(reader)
 		case "4":
-			toggleTodo(reader)
+			updateStatusTodo(reader)
 		case "5":
 			updateTitle(reader)
 		case "6":
@@ -55,6 +55,30 @@ func main() {
 		case "7":
 			fmt.Println("Bye 👋")
 			return
+		default:
+			fmt.Println("Invalid choice")
+		}
+	}
+}
+
+func moveStatus(reader *bufio.Reader) string {
+	for {
+		fmt.Println("\n==== MOVE STATUS ====")
+		fmt.Println("1. New")
+		fmt.Println("2. In-progress")
+		fmt.Println("3. Completed")
+		fmt.Print("Choose an option: ")
+
+		choice, _ := reader.ReadString('\n')
+		choice = strings.TrimSpace(choice)
+
+		switch choice {
+		case "1":
+			return "New"
+		case "2":
+			return "In-progress"
+		case "3":
+			return "Completed"
 		default:
 			fmt.Println("Invalid choice")
 		}
@@ -131,8 +155,8 @@ func addTodo(reader *bufio.Reader) {
 	decodeDataRespond(resp)
 }
 
-func toggleTodo(reader *bufio.Reader) {
-	fmt.Print("Enter todo ID to toggle: ")
+func updateStatusTodo(reader *bufio.Reader) {
+	fmt.Print("Enter todo ID to move status: ")
 	idStr, _ := reader.ReadString('\n')
 	idStr = strings.TrimSpace(idStr)
 	id, _ := strconv.Atoi(idStr)
@@ -150,14 +174,14 @@ func toggleTodo(reader *bufio.Reader) {
 		return
 	}
 
-	var todo Todo
-	if err := json.NewDecoder(resp.Body).Decode(&todo); err != nil {
-		fmt.Println("Error decoding:", err)
-		return
-	}
+	// var todo Todo
+	// if err := json.NewDecoder(resp.Body).Decode(&todo); err != nil {
+	// 	fmt.Println("Error decoding:", err)
+	// 	return
+	// }
 
-	// Toggle Completed
-	body, _ := json.Marshal(map[string]any{"completed": !todo.Completed})
+	// Move status
+	body, _ := json.Marshal(map[string]any{"completed": moveStatus(reader)})
 
 	req, _ := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/%d", baseURL, id), bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -171,9 +195,9 @@ func toggleTodo(reader *bufio.Reader) {
 	defer res.Body.Close()
 
 	if res.StatusCode == http.StatusOK {
-		fmt.Println("Todo toggled 🔄")
+		fmt.Println("Moved status 🔄")
 	} else {
-		fmt.Println("Failed to toggle:", res.Status)
+		fmt.Println("Failed to Move status:", res.Status)
 	}
 
 	decodeDataRespond(res)
@@ -198,11 +222,11 @@ func updateTitle(reader *bufio.Reader) {
 		return
 	}
 
-	var todo Todo
-	if err := json.NewDecoder(resp.Body).Decode(&todo); err != nil {
-		fmt.Println("Error decoding:", err)
-		return
-	}
+	// var todo Todo
+	// if err := json.NewDecoder(resp.Body).Decode(&todo); err != nil {
+	// 	fmt.Println("Error decoding:", err)
+	// 	return
+	// }
 
 	// Update title
 	fmt.Print("Enter title to update: ")
@@ -264,12 +288,7 @@ func decodeDataRespond(resp *http.Response) {
 }
 
 func printDataRespond(todo *Todo) {
-	status := " "
-	if todo.Completed {
-		status = "✅"
-	}
-
-	fmt.Printf("[%s] %d: Title: %s\n", status, todo.ID, todo.Title)
+	fmt.Printf("[%s] %d: Title: %s\n", todo.Completed, todo.ID, todo.Title)
 	fmt.Printf("CreatedAt: %s\n", todo.CreatedAt)
 	fmt.Printf("UpdatedAt: %s\n", todo.UpdatedAt)
 }
