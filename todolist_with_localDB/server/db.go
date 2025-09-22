@@ -34,7 +34,7 @@ func initDB() {
 		CREATE TABLE IF NOT EXISTS todos (
 			id SERIAL PRIMARY KEY,
 			title TEXT NOT NULL,
-			completed BOOLEAN DEFAULT false,
+			completed TEXT DEFAULT 'New',
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)
