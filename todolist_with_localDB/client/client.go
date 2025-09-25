@@ -170,9 +170,13 @@ func updateStatusTodo(reader *bufio.Reader) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		fmt.Println("Error: status code ", resp.StatusCode)
 		fmt.Println("Todo not found")
 		return
 	}
+
+	//Print current status of this todo
+	decodeDataRespond(resp)
 
 	// Move status
 	body, _ := json.Marshal(map[string]any{"completed": moveStatus(reader)})
