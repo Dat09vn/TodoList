@@ -15,7 +15,7 @@ import (
 type Todo struct {
 	ID        int       `json:"id"`
 	Title     string    `json:"title"`
-	Completed string    `json:"completed"`
+	Status    string    `json:"New"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -179,7 +179,7 @@ func updateStatusTodo(reader *bufio.Reader) {
 	decodeDataRespond(resp)
 
 	// Move status
-	body, _ := json.Marshal(map[string]any{"completed": moveStatus(reader)})
+	body, _ := json.Marshal(map[string]any{"status": moveStatus(reader)})
 
 	req, _ := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/%d", baseURL, id), bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -280,7 +280,7 @@ func decodeDataRespond(resp *http.Response) {
 }
 
 func printDataRespond(todo *Todo) {
-	fmt.Printf("[%s] %d: Title: %s\n", todo.Completed, todo.ID, todo.Title)
+	fmt.Printf("[%s] %d: Title: %s\n", todo.Status, todo.ID, todo.Title)
 	fmt.Printf("CreatedAt: %s\n", todo.CreatedAt)
 	fmt.Printf("UpdatedAt: %s\n", todo.UpdatedAt)
 }

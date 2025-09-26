@@ -36,7 +36,7 @@ func getTodos(w http.ResponseWriter, r *http.Request) {
 	var todos []Todo
 	for rows.Next() {
 		var t Todo
-		if err := rows.Scan(&t.ID, &t.Title, &t.Completed, &t.CreatedAt, &t.UpdatedAt); err != nil {
+		if err := rows.Scan(&t.ID, &t.Title, &t.Status, &t.CreatedAt, &t.UpdatedAt); err != nil {
 			http.Error(w, err.Error(), 500)
 			return
 		}
@@ -50,7 +50,7 @@ func getTodo(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 	var t Todo
 	err := db.QueryRow("SELECT id, title, completed, created_at, updated_at FROM todos WHERE id=$1", id).
-		Scan(&t.ID, &t.Title, &t.Completed, &t.CreatedAt, &t.UpdatedAt)
+		Scan(&t.ID, &t.Title, &t.Status, &t.CreatedAt, &t.UpdatedAt)
 	if err != nil {
 		http.Error(w, "Todo not found", 404)
 		return
@@ -71,7 +71,7 @@ func createTodo(w http.ResponseWriter, r *http.Request) {
 	err := db.QueryRow(
 		"INSERT INTO todos (title) VALUES ($1) RETURNING id, title, completed, created_at, updated_at",
 		input.Title,
-	).Scan(&t.ID, &t.Title, &t.Completed, &t.CreatedAt, &t.UpdatedAt)
+	).Scan(&t.ID, &t.Title, &t.Status, &t.CreatedAt, &t.UpdatedAt)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -85,8 +85,8 @@ func updateTodo(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
 	var input struct {
-		Title     *string `json:"title"`
-		Completed *string `json:"completed"`
+		Title  *string `json:"title"`
+		Status *string `json:"status"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		http.Error(w, err.Error(), 400)
@@ -102,9 +102,9 @@ func updateTodo(w http.ResponseWriter, r *http.Request) {
 		args = append(args, *input.Title)
 		argID++
 	}
-	if input.Completed != nil {
+	if input.Status != nil {
 		query += fmt.Sprintf("completed=$%d,", argID)
-		args = append(args, *input.Completed)
+		args = append(args, *input.Status)
 		argID++
 	}
 	query += fmt.Sprintf("updated_at=$%d WHERE id=$%d RETURNING id, title, completed, created_at, updated_at", argID, argID+1)
@@ -112,7 +112,7 @@ func updateTodo(w http.ResponseWriter, r *http.Request) {
 
 	var t Todo
 	err := db.QueryRow(query, args...).
-		Scan(&t.ID, &t.Title, &t.Completed, &t.CreatedAt, &t.UpdatedAt)
+		Scan(&t.ID, &t.Title, &t.Status, &t.CreatedAt, &t.UpdatedAt)
 	if err != nil {
 		http.Error(w, "Todo not found", 404)
 		return
